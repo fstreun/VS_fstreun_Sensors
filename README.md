@@ -1,5 +1,9 @@
 # VS_fstreun_Sensors
 
+<b>Team</b>
+
+streuseli (owner)
+
 copied from https://www.vs.inf.ethz.ch/edu/VS/exercises/A1/VS_HS2017_Assignment1.pdf
 
 <b>Distributed Systems - Assignment 1.1 Sensing with Android</b>
