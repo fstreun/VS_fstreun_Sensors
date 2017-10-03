@@ -2,7 +2,7 @@
 
 <b>Team</b>
 
-streuseli (owner)
+streuseli (owner)<br>
 brotobia
 
 copied from https://www.vs.inf.ethz.ch/edu/VS/exercises/A1/VS_HS2017_Assignment1.pdf
