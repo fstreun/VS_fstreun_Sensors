@@ -21,7 +21,6 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     private SensorManager sensorMgr;
     private Sensor sensor;
 
-    private int numberOfValues;
     private String unit;
 
     private List<TextView> textViews;
@@ -47,7 +46,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
         SensorTypes sensorTypes = new SensorTypesImpl();
 
-        numberOfValues = sensorTypes.getNumberValues(sensor.getType());
+        int numberOfValues = sensorTypes.getNumberValues(sensor.getType());
         unit = sensorTypes.getUnitString(sensor.getType());
 
         textViews = new ArrayList<>(numberOfValues);
@@ -67,8 +66,9 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     }
 
     /**
+     * TODO
      * Used by the android test
-     * @return TODO
+     * @return graph container of this activity
      */
     public GraphContainer getGraphContainer() {
         return null;
@@ -79,13 +79,12 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     public void onSensorChanged(SensorEvent sensorEvent) {
         float[] values = sensorEvent.values;
 
-        if (values.length != numberOfValues){
-            // Todo: error
-
-        }
-
-        for (int i = 0; i < numberOfValues; i++){
-            textViews.get(i).setText(values[i] + " " + unit);
+        if (values.length != textViews.size()){
+            Toast.makeText(this, "failed to load new sensor data", Toast.LENGTH_SHORT).show();
+        }else {
+            for (int i = 0; i < values.length; i++) {
+                textViews.get(i).setText(values[i] + " " + unit);
+            }
         }
     }
 
