@@ -34,7 +34,16 @@ public class SensorActivity extends AppCompatActivity {
             sensor = sensors.get(sensor_number);
 
             setTitle(sensor.getName());
+
         }
 
+    }
+
+    /**
+     * Used by the android test
+     * @return TODO
+     */
+    public GraphContainer getGraphContainer() {
+        return null;
     }
 }
