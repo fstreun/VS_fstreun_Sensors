@@ -2,8 +2,8 @@
 
 <b>Team</b>
 
-streuseli (owner)<br>
-brotobia
+fstreun (owner)<br>
+brotobia<br>
 zenovin
 
 copied from https://www.vs.inf.ethz.ch/edu/VS/exercises/A1/VS_HS2017_Assignment1.pdf
