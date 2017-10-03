@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,8 +23,9 @@ public class SensorActivity extends AppCompatActivity {
         int sensor_number = intent.getIntExtra(EXTRA_SENSOR_NUMBER, -1);
 
         if (sensor_number < 0){
-            // Todo: catch if sensor_number = -1, meaning: no extra content was send.
-            setTitle("Failed to Load");
+            // show error message and close activity
+            Toast.makeText(this, "failed to load sensor", Toast.LENGTH_SHORT).show();
+            finish();
         } else {
 
             SensorManager sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
