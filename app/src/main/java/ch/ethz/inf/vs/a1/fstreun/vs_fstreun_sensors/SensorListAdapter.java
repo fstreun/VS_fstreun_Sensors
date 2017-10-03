@@ -19,17 +19,13 @@ import java.util.List;
 
 public class SensorListAdapter extends ArrayAdapter<Sensor>{
 
-    private List<Sensor> dataSet;
-    private Context mContext;
-
     private static class ViewHolder{
         TextView SensorName;
     }
 
     public SensorListAdapter(@NonNull Context context, @NonNull List<Sensor> objects) {
+        // super call stores objects, which can be access through getItem(position)
         super(context, R.layout.row_item_sensors, objects);
-        this.dataSet = objects;
-        this.mContext = context;
     }
 
     @NonNull

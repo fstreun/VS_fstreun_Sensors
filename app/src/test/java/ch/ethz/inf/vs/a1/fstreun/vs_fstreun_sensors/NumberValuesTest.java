@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors.SensorTypes;
-//import ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors.SensorTypesImpl;
+import ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors.SensorTypesImpl;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,7 +24,7 @@ public class NumberValuesTest {
 
     @Before
     public void setupBeforeClass(){
-        //mSensorTypes = new SensorTypesImpl();
+        mSensorTypes = new SensorTypesImpl();
     }
 
     @Test
