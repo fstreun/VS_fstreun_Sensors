@@ -70,7 +70,7 @@ class SensorTypesImpl implements SensorTypes {
             case Sensor.TYPE_RELATIVE_HUMIDITY:
                 return "%";
             case Sensor.TYPE_ROTATION_VECTOR:
-                return "vector"; // don't know this one
+                return ""; // don't know this one, they are vectors
             case Sensor.TYPE_TEMPERATURE:
                 return "°C";
 

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearlayout_sensor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors.SensorActivity">
+    tools:context="ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors.SensorActivity"
+    android:orientation="vertical">
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
