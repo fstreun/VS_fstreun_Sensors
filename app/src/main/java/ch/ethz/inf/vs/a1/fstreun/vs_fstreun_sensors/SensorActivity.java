@@ -66,8 +66,9 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     }
 
     /**
+     * TODO
      * Used by the android test
-     * @return TODO
+     * @return graph container of this activity
      */
     public GraphContainer getGraphContainer() {
         return null;
