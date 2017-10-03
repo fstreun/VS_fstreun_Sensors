@@ -60,7 +60,7 @@ class SensorTypesImpl implements SensorTypes {
             case Sensor.TYPE_LINEAR_ACCELERATION:
                 return "m/s^2";
             case Sensor.TYPE_MAGNETIC_FIELD:
-                return "μT";
+                return "microT";
             case Sensor.TYPE_ORIENTATION:
                 return "degree";
             case Sensor.TYPE_PRESSURE:
@@ -70,7 +70,7 @@ class SensorTypesImpl implements SensorTypes {
             case Sensor.TYPE_RELATIVE_HUMIDITY:
                 return "%";
             case Sensor.TYPE_ROTATION_VECTOR:
-                return ""; // don't know this one, they are vectors
+                return "no unit";
             case Sensor.TYPE_TEMPERATURE:
                 return "°C";
 
