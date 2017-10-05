@@ -34,7 +34,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     private List<TextView> textViews;
 
-    private GraphContainerImpl graphContainer = new GraphContainerImpl();
+    private GraphContainerImpl graphContainer;
     GraphView graphView;
 
     double timeAtStart;
