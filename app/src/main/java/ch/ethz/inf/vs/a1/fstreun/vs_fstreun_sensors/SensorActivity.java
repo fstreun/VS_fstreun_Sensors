@@ -12,12 +12,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SensorActivity extends AppCompatActivity implements SensorEventListener{
 
     public static final String EXTRA_SENSOR_TYP = "sensor_typ";
+
+    private static final String SAVED_STATE_START_TIME = "start_time";
+    private static final String SAVED_STATE_GRAPH_CONTAINER = "graph_container";
 
     private SensorManager sensorMgr;
     private Sensor sensor;
@@ -27,7 +34,10 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     private List<TextView> textViews;
 
-    GraphContainerImpl graphContainer = new GraphContainerImpl();
+    private GraphContainerImpl graphContainer;
+    GraphView graphView;
+
+    double timeAtStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +78,8 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
             textViews.add(textView);
         }
 
-
+        graphContainer = new GraphContainerImpl();
+        graphView = (GraphView) findViewById(R.id.graph);
     }
 
     /**
@@ -80,25 +91,64 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         return graphContainer;
     }
 
+    private void updateGraphView(){
+
+        graphView.removeAllSeries();
+        float[][] values = graphContainer.getValues();
+        double [] xIndex = graphContainer.getxIndexs();
+
+
+        DataPoint[][] dataPoints = new DataPoint[numberOfValues][values.length];
+
+        for (int i = 0; i < values.length; i++){
+            // i is the xIndex
+            for (int j = 0; j < numberOfValues; j++){
+                // j goes over the different values at one xIndex
+                double index = xIndex[i];
+                float val = values[i][j];
+                dataPoints[j][i] = new DataPoint(index, val);
+                //dataPoints[j][i] = new DataPoint(xIndex[i],values[i][j]);
+            }
+        }
+
+        for (int i = 0; i < numberOfValues; i++){
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints[i]);
+            graphView.addSeries(series);
+        }
+
+
+    }
+
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         float[] values = sensorEvent.values;
 
+        float[] realValues = new float[numberOfValues];
+
         for (int i = 0; i < numberOfValues; i++) {
             textViews.get(i).setText(values[i] + " " + unit);
+
+            realValues[i] = values[i];
         }
 
+        double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
+
+        graphContainer.addValues(time, values);
+        updateGraphView();
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
+
         // register SensorChangeListener on every start of the activity
         sensorMgr.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
@@ -109,4 +159,17 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         sensorMgr.unregisterListener(this);
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        timeAtStart = savedInstanceState.getDouble(SAVED_STATE_START_TIME);
+        graphContainer = (GraphContainerImpl) savedInstanceState.getSerializable(SAVED_STATE_GRAPH_CONTAINER);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putDouble(SAVED_STATE_START_TIME, timeAtStart);
+        outState.putSerializable(SAVED_STATE_GRAPH_CONTAINER, graphContainer);
+        super.onSaveInstanceState(outState);
+    }
 }

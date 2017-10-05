@@ -1,11 +1,15 @@
 package ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors;
 
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
 /**
  * Created by fabio on 10/5/17.
  * stores all the data of the Graph
  */
 
-public class GraphContainerImpl implements GraphContainer {
+public class GraphContainerImpl implements GraphContainer, Serializable {
 
 
     private int maxLength = 100;
@@ -40,8 +44,10 @@ public class GraphContainerImpl implements GraphContainer {
 
             // the dataSet has already the maximum number of Values.
             // remove first one, shift array and add at the end:
-            System.arraycopy(dataSet, 1, dataSet, 0, maxLength - 1);
-            System.arraycopy(xDataSet, 1, xDataSet, 0, maxLength - 1);
+            for (int i = 0; i < maxLength-1; i++){
+                dataSet[i] = dataSet[i+1].clone();
+                xDataSet[i] = xDataSet[i+1];
+            }
             dataSet[maxLength - 1] = values;
             xDataSet[maxLength - 1] = xIndex;
         }
