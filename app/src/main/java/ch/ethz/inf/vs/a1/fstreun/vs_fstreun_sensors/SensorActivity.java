@@ -12,6 +12,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +32,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     private List<TextView> textViews;
 
     GraphContainerImpl graphContainer = new GraphContainerImpl();
+    GraphView graphView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +73,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
             textViews.add(textView);
         }
 
-
+        graphView = (GraphView) findViewById(R.id.graph);
     }
 
     /**
@@ -80,16 +85,51 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         return graphContainer;
     }
 
+    private void updateGraphView(){
+
+        graphView.removeAllSeries();
+        float[][] values = graphContainer.getValues();
+        double [] xIndex = graphContainer.getxIndexs();
+
+
+        DataPoint[][] dataPoints = new DataPoint[numberOfValues][values.length];
+
+        for (int i = 0; i < values.length; i++){
+            // i is the xIndex
+            for (int j = 0; j < numberOfValues; j++){
+                // j goes over the different values at one xIndex
+                double index = xIndex[i];
+                float val = values[i][j];
+                dataPoints[j][i] = new DataPoint(index, val);
+                //dataPoints[j][i] = new DataPoint(xIndex[i],values[i][j]);
+            }
+        }
+
+        for (int i = 0; i < numberOfValues; i++){
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints[i]);
+            graphView.addSeries(series);
+        }
+    }
+
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         float[] values = sensorEvent.values;
 
+        float[] realValues = new float[numberOfValues];
+
         for (int i = 0; i < numberOfValues; i++) {
             textViews.get(i).setText(values[i] + " " + unit);
+
+            realValues[i] = values[i];
         }
 
+        double time = System.currentTimeMillis()/1000.0;
+
+        graphContainer.addValues(time, values);
+        updateGraphView();
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
