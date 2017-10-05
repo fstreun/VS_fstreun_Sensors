@@ -83,7 +83,6 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     }
 
     /**
-     * TODO
      * Used by the android test
      * @return graph container of this activity
      */
@@ -134,7 +133,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
         double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
 
-        graphContainer.addValues(time, values);
+        graphContainer.addValues(time, realValues);
         updateGraphView();
     }
 
