@@ -16,7 +16,7 @@ public interface GraphContainer {
      * @param xIndex The x index.
      * @param values The values. If there is more than one value there should be several series.
      */
-    void addValues(double xIndex, float[] values);
+    void addValues(double xIndex, float[] values) throws Exception;
 
     /**
      * Get all values currently displayed in the graph.
