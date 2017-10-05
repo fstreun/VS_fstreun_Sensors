@@ -1,6 +1,7 @@
 package ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -12,10 +13,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +38,8 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     private List<TextView> textViews;
 
     private GraphContainerImpl graphContainer;
-    GraphView graphView;
+    private GraphView graphView;
+    private int[] colors = {Color.BLUE, Color.GREEN, Color.RED, Color.YELLOW, Color.CYAN, Color.MAGENTA};
 
     double timeAtStart;
 
@@ -63,8 +67,6 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         numberOfValues = sensorTypes.getNumberValues(sensor.getType());
         unit = sensorTypes.getUnitString(sensor.getType());
 
-        Log.d("SensorActivity", numberOfValues+"");
-
         textViews = new ArrayList<>(numberOfValues);
 
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linearlayout_sensor);
@@ -78,8 +80,11 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
             textViews.add(textView);
         }
 
+        timeAtStart = System.currentTimeMillis()/1000.0;
+
         graphContainer = new GraphContainerImpl();
         graphView = (GraphView) findViewById(R.id.graph);
+
     }
 
     /**
@@ -103,18 +108,18 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
             // i is the xIndex
             for (int j = 0; j < numberOfValues; j++){
                 // j goes over the different values at one xIndex
-                double index = xIndex[i];
-                float val = values[i][j];
-                dataPoints[j][i] = new DataPoint(index, val);
-                //dataPoints[j][i] = new DataPoint(xIndex[i],values[i][j]);
+                dataPoints[j][i] = new DataPoint(xIndex[i],values[i][j]);
             }
         }
 
         for (int i = 0; i < numberOfValues; i++){
             LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints[i]);
+            series.setColor(colors[i%colors.length]);
             graphView.addSeries(series);
         }
-
+        graphView.getViewport().setXAxisBoundsManual(true);
+        graphView.getViewport().setMinX(xIndex[0]);
+        graphView.getViewport().setMaxX(xIndex[xIndex.length-1]);
 
     }
 
