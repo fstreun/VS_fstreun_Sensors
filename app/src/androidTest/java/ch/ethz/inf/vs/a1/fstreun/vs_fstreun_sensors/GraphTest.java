@@ -40,11 +40,11 @@ public class GraphTest {
     }
 
     /*
-     * Simple test. 10 values.
-     */
+	 * Simple test. 10 values.
+	 */
     @Test
     public void test1() {
-        float[][] values = createArray(3, 10, 1);
+        float[][] values = createArray(10, 3, 1);
         carryOutTest(values, values);
     }
 
@@ -53,7 +53,7 @@ public class GraphTest {
      */
     @Test
     public void test2() {
-        float[][] values = createArray(3, 100, 1);
+        float[][] values = createArray(100, 3, 1);
         carryOutTest(values, values);
     }
 
@@ -62,8 +62,8 @@ public class GraphTest {
      */
     @Test
     public void test3() {
-        float[][] values = createArray(3, 101, 1);
-        float[][] target = createArray(3, 100, 4);
+        float[][] values = createArray(101, 3, 1);
+        float[][] target = createArray(100, 3, 4);
         carryOutTest(values, target);
     }
 
@@ -72,8 +72,8 @@ public class GraphTest {
      */
     @Test
     public void test4() {
-        float[][] values = createArray(3, 200, 1);
-        float[][] target = createArray(3, 100, 301);
+        float[][] values = createArray(200, 3, 1);
+        float[][] target = createArray(100, 3, 301);
         carryOutTest(values, target);
     }
 
@@ -82,8 +82,8 @@ public class GraphTest {
      */
     @Test
     public void test5() {
-        float[][] values = createArray(3, 1000, 1);
-        float[][] target = createArray(3, 100, 2701);
+        float[][] values = createArray(1000, 3, 1);
+        float[][] target = createArray(100, 3, 2701);
         carryOutTest(values, target);
     }
 
