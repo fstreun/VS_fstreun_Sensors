@@ -23,6 +23,9 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     public static final String EXTRA_SENSOR_TYP = "sensor_typ";
 
+    private static final String SAVED_STATE_START_TIME = "start_time";
+    private static final String SAVED_STATE_GRAPH_CONTAINER = "graph_container";
+
     private SensorManager sensorMgr;
     private Sensor sensor;
     private int numberOfValues;
@@ -31,8 +34,10 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     private List<TextView> textViews;
 
-    GraphContainerImpl graphContainer = new GraphContainerImpl();
+    private GraphContainerImpl graphContainer = new GraphContainerImpl();
     GraphView graphView;
+
+    double timeAtStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +78,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
             textViews.add(textView);
         }
 
+        graphContainer = new GraphContainerImpl();
         graphView = (GraphView) findViewById(R.id.graph);
     }
 
@@ -109,6 +115,8 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
             LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints[i]);
             graphView.addSeries(series);
         }
+
+
     }
 
 
@@ -124,7 +132,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
             realValues[i] = values[i];
         }
 
-        double time = System.currentTimeMillis()/1000.0;
+        double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
 
         graphContainer.addValues(time, values);
         updateGraphView();
@@ -136,9 +144,11 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
+
         // register SensorChangeListener on every start of the activity
         sensorMgr.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
@@ -149,4 +159,17 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         sensorMgr.unregisterListener(this);
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        timeAtStart = savedInstanceState.getDouble(SAVED_STATE_START_TIME);
+        graphContainer = (GraphContainerImpl) savedInstanceState.getSerializable(SAVED_STATE_GRAPH_CONTAINER);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putDouble(SAVED_STATE_START_TIME, timeAtStart);
+        outState.putSerializable(SAVED_STATE_GRAPH_CONTAINER, graphContainer);
+        super.onSaveInstanceState(outState);
+    }
 }

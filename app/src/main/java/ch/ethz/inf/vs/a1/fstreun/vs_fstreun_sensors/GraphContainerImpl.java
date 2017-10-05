@@ -1,11 +1,15 @@
 package ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors;
 
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
 /**
  * Created by fabio on 10/5/17.
  * stores all the data of the Graph
  */
 
-public class GraphContainerImpl implements GraphContainer {
+public class GraphContainerImpl implements GraphContainer, Serializable {
 
 
     private int maxLength = 100;
