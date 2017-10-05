@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getApplicationContext(), SensorActivity.class);
-                intent.putExtra(SensorActivity.EXTRA_SENSOR_NUMBER, i);
+                intent.putExtra(SensorActivity.EXTRA_SENSOR_TYP, adapter.getItem(i).getType());
                 startActivity(intent);
             }
         });

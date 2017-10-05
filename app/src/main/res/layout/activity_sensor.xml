@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearlayout_sensor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors.SensorActivity"
     android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearlayout_sensor"
+        android:orientation="vertical">
+
+    </LinearLayout>
 
     <com.jjoe64.graphview.GraphView
         android:layout_width="match_parent"

@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,14 +17,17 @@ import java.util.List;
 
 public class SensorActivity extends AppCompatActivity implements SensorEventListener{
 
-    public static final String EXTRA_SENSOR_NUMBER = "sensor_id";
+    public static final String EXTRA_SENSOR_TYP = "sensor_typ";
 
     private SensorManager sensorMgr;
     private Sensor sensor;
+    private int numberOfValues;
 
     private String unit;
 
     private List<TextView> textViews;
+
+    GraphContainerImpl graphContainer = new GraphContainerImpl();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,23 +35,25 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         setContentView(R.layout.activity_sensor);
 
         Intent intent = getIntent();
-        int sensor_number = intent.getIntExtra(EXTRA_SENSOR_NUMBER, -1);
+        int sensorTyp = intent.getIntExtra(EXTRA_SENSOR_TYP, -1); //-1 is type all.
 
-        if (sensor_number < 0){
+        if (sensorTyp < 0){
             // show error message and close activity
             Toast.makeText(this, "failed to load sensor", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
 
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
-        List<Sensor> sensors = sensorMgr.getSensorList(Sensor.TYPE_ALL);
-        sensor = sensors.get(sensor_number);
+        sensor = sensorMgr.getDefaultSensor(sensorTyp);
         setTitle(sensor.getName());
 
         SensorTypes sensorTypes = new SensorTypesImpl();
 
-        int numberOfValues = sensorTypes.getNumberValues(sensor.getType());
+        numberOfValues = sensorTypes.getNumberValues(sensor.getType());
         unit = sensorTypes.getUnitString(sensor.getType());
+
+        Log.d("SensorActivity", numberOfValues+"");
 
         textViews = new ArrayList<>(numberOfValues);
 
@@ -71,7 +77,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
      * @return graph container of this activity
      */
     public GraphContainer getGraphContainer() {
-        return null;
+        return graphContainer;
     }
 
 
@@ -79,13 +85,10 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     public void onSensorChanged(SensorEvent sensorEvent) {
         float[] values = sensorEvent.values;
 
-        if (values.length != textViews.size()){
-            Toast.makeText(this, "failed to load new sensor data", Toast.LENGTH_SHORT).show();
-        }else {
-            for (int i = 0; i < values.length; i++) {
-                textViews.get(i).setText(values[i] + " " + unit);
-            }
+        for (int i = 0; i < numberOfValues; i++) {
+            textViews.get(i).setText(values[i] + " " + unit);
         }
+
     }
 
     @Override
