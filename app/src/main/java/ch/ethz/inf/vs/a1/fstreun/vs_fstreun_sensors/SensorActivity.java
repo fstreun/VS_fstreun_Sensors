@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -85,6 +86,9 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         graphContainer = new GraphContainerImpl();
         graphView = (GraphView) findViewById(R.id.graph);
 
+
+        new GraphUpdater().execute(20);
+
     }
 
     /**
@@ -139,7 +143,6 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
 
         graphContainer.addValues(time, realValues);
-        updateGraphView();
     }
 
 
@@ -175,5 +178,42 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         outState.putDouble(SAVED_STATE_START_TIME, timeAtStart);
         outState.putSerializable(SAVED_STATE_GRAPH_CONTAINER, graphContainer);
         super.onSaveInstanceState(outState);
+    }
+
+
+    class GraphUpdater extends AsyncTask<Integer, Long, Void>{
+
+        long delay = 200;
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            while (true){
+                updateData();
+                updateGraphView();
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(Long... values) {
+        }
+    }
+
+    private void updateData(){
+
+        double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
+        float[][] realValues = graphContainer.getValues();
+
+        if (realValues.length != 0) {
+            graphContainer.addValues(time, realValues[realValues.length-1]);
+        }else {
+            graphContainer.addValues(time, new float[numberOfValues]);
+        }
+
+
     }
 }
