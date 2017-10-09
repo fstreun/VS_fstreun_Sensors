@@ -39,7 +39,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     private List<TextView> textViews;
 
-    private GraphContainerThreadSave graphContainer;
+    private GraphContainerThreadSave graphContainer = new GraphContainerThreadSave();
     private GraphView graphView;
     private int[] colors = {Color.BLUE, Color.GREEN, Color.RED, Color.YELLOW, Color.CYAN, Color.MAGENTA};
 
@@ -67,12 +67,28 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensor = sensorMgr.getDefaultSensor(sensorTyp);
+
+
+        if (sensor == null){
+            // show error message and close activity
+            Toast.makeText(this, "failed to load sensor", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         setTitle(sensor.getName());
 
         SensorTypes sensorTypes = new SensorTypesImpl();
 
         numberOfValues = sensorTypes.getNumberValues(sensor.getType());
         unit = sensorTypes.getUnitString(sensor.getType());
+
+        if (numberOfValues == -1 || unit == null){
+            // show error message and close activity
+            Toast.makeText(this, "failed to load sensor", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         textViews = new ArrayList<>(numberOfValues);
 
@@ -89,9 +105,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
         timeAtStart = System.currentTimeMillis()/1000.0;
 
-        graphContainer = new GraphContainerThreadSave();
         graphView = (GraphView) findViewById(R.id.graph);
-
 
     }
 
@@ -118,15 +132,16 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     /**
      * Used by the android test
-     * @return a new graph container
+     * @return returns the current graphContainer.
      */
     public GraphContainer getGraphContainer() {
-        return new GraphContainerThreadSave();
+        return graphContainer;
     }
 
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+
         float[] values = sensorEvent.values;
 
         float[] realValues = new float[numberOfValues];
