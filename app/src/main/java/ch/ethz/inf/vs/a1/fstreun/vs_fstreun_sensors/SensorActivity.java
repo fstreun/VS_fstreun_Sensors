@@ -8,17 +8,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +34,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     private List<TextView> textViews;
 
-    private GraphContainerImpl graphContainer;
+    private GraphContainerImpl graphContainer = new GraphContainerImpl();
     private GraphView graphView;
     private int[] colors = {Color.BLUE, Color.GREEN, Color.RED, Color.YELLOW, Color.CYAN, Color.MAGENTA};
 
@@ -60,12 +57,28 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensor = sensorMgr.getDefaultSensor(sensorTyp);
+
+
+        if (sensor == null){
+            // show error message and close activity
+            Toast.makeText(this, "failed to load sensor", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         setTitle(sensor.getName());
 
         SensorTypes sensorTypes = new SensorTypesImpl();
 
         numberOfValues = sensorTypes.getNumberValues(sensor.getType());
         unit = sensorTypes.getUnitString(sensor.getType());
+
+        if (numberOfValues == -1 || unit == null){
+            // show error message and close activity
+            Toast.makeText(this, "failed to load sensor", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         textViews = new ArrayList<>(numberOfValues);
 
@@ -82,17 +95,16 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
         timeAtStart = System.currentTimeMillis()/1000.0;
 
-        graphContainer = new GraphContainerImpl();
         graphView = (GraphView) findViewById(R.id.graph);
 
     }
 
     /**
      * Used by the android test
-     * @return newly created graph container
+     * @return returns the current graphContainer.
      */
     public GraphContainer getGraphContainer() {
-        return new GraphContainerImpl();
+        return graphContainer;
     }
 
     private void updateGraphView(){
@@ -126,7 +138,6 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        // TODO: check if the sensorEvent is the same as the sensor
 
         float[] values = sensorEvent.values;
 
