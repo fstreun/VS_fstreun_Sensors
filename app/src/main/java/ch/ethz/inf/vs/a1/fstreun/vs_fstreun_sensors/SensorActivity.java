@@ -89,10 +89,10 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     /**
      * Used by the android test
-     * @return graph container of this activity
+     * @return newly created graph container
      */
     public GraphContainer getGraphContainer() {
-        return graphContainer;
+        return new GraphContainerImpl();
     }
 
     private void updateGraphView(){
@@ -126,6 +126,8 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        // TODO: check if the sensorEvent is the same as the sensor
+
         float[] values = sensorEvent.values;
 
         float[] realValues = new float[numberOfValues];
