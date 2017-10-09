@@ -24,7 +24,7 @@ public class GraphContainerImpl implements GraphContainer, Serializable {
     /**
      *
      * @param xIndex The x index.
-     * @param values The values. If there is more than one value there should be several series.
+     * @param values The values.
      * @throws IllegalArgumentException when values is null or not the same length as the first value added
      */
     @Override
@@ -63,9 +63,11 @@ public class GraphContainerImpl implements GraphContainer, Serializable {
         return res;
     }
 
+
     public double[] getxIndexs(){
         double[] res = new double[currentLength];
         System.arraycopy(xDataSet, 0, res,0,currentLength);
         return res;
     }
+
 }
