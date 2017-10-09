@@ -89,10 +89,10 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     /**
      * Used by the android test
-     * @return graph container of this activity
+     * @return newly created graph container
      */
     public GraphContainer getGraphContainer() {
-        return graphContainer;
+        return new GraphContainerImpl();
     }
 
     private void updateGraphView(){
