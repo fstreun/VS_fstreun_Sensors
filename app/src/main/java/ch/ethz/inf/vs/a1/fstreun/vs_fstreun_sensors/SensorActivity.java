@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RunnableFuture;
 
 public class SensorActivity extends AppCompatActivity implements SensorEventListener{
 
@@ -43,8 +45,10 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     double timeAtStart;
 
-    long delayGraphViewUpdate = 200;
-    long delayMaxDataUpdate = 50;
+    // delay for GraphViewUpdate
+    long delayGraphViewUpdate = 100;
+    // delay for automatic data update (not affected by sensor change updates)
+    long delayMaxDataUpdate = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,18 +93,28 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         graphView = (GraphView) findViewById(R.id.graph);
 
 
-        GraphViewUpdater gu = new GraphViewUpdater();
-        DataUpdater du = new DataUpdater();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            gu.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, delayGraphViewUpdate);
-            du.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, delayMaxDataUpdate);
-        } else {
-            gu.execute(delayGraphViewUpdate);
-            du.execute(delayMaxDataUpdate);
-        }
-
     }
+
+
+    private Handler handlerDataUpdater = new Handler();
+    private Handler handlerGraphUpdater = new Handler();
+
+    private Runnable dataUpdater = new Runnable() {
+        @Override
+        public void run() {
+            updateData();
+            handlerDataUpdater.postDelayed(this, delayMaxDataUpdate);
+        }
+    };
+
+    private Runnable graphUpdater = new Runnable() {
+
+        @Override
+        public void run() {
+            updateGraphView();
+            handlerGraphUpdater.postDelayed(this, delayGraphViewUpdate);
+        }
+    };
 
     /**
      * Used by the android test
@@ -137,15 +151,21 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     @Override
     protected void onResume() {
         super.onResume();
-
         // register SensorChangeListener on every start of the activity
         sensorMgr.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+        handlerDataUpdater.postDelayed(dataUpdater, 0);
+        handlerGraphUpdater.postDelayed(graphUpdater, 0);
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
+
+        handlerDataUpdater.removeCallbacks(dataUpdater);
+        handlerGraphUpdater.removeCallbacks(graphUpdater);
+
         sensorMgr.unregisterListener(this);
+        super.onPause();
     }
 
     @Override
@@ -163,93 +183,47 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     }
 
 
+    private void updateGraphView(){
 
-    class GraphViewUpdater extends AsyncTask<Long, Void, Void>{
+        graphView.removeAllSeries();
+        GraphContainerThreadSave.ValueContainer container = graphContainer.getAllValues();
+        float[][] values = container.yValues;
+        double [] xIndex = container.xValues;
 
+        if (xIndex.length > 0) {
 
-        private GraphViewUpdater(){
-            super();
-        }
+            DataPoint[][] dataPoints = new DataPoint[numberOfValues][values.length];
 
-
-        long delay;
-        @Override
-        protected Void doInBackground(Long... longs) {
-            delay = longs[0];
-            Log.d("GRAPHVIEWUPDATER", "delay: " + delay);
-
-            while (true){
-                updateGraphView();
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            for (int i = 0; i < values.length; i++) {
+                // i is the xIndex
+                for (int j = 0; j < numberOfValues; j++) {
+                    // j goes over the different values at one xIndex
+                    dataPoints[j][i] = new DataPoint(xIndex[i], values[i][j]);
                 }
             }
-        }
 
-        private void updateGraphView(){
+            try {
 
-            graphView.removeAllSeries();
-            GraphContainerThreadSave.ValueContainer container = graphContainer.getAllValues();
-            float[][] values = container.yValues;
-            double [] xIndex = container.xValues;
+                graphView.getViewport().setXAxisBoundsManual(true);
+                graphView.getViewport().setMinX(xIndex[0]);
+                graphView.getViewport().setMaxX(xIndex[xIndex.length - 1]);
 
-            if (xIndex.length > 0) {
-
-                DataPoint[][] dataPoints = new DataPoint[numberOfValues][values.length];
-
-                for (int i = 0; i < values.length; i++) {
-                    // i is the xIndex
-                    for (int j = 0; j < numberOfValues; j++) {
-                        // j goes over the different values at one xIndex
-                        dataPoints[j][i] = new DataPoint(xIndex[i], values[i][j]);
-                    }
+                for (int i = 0; i < numberOfValues; i++) {
+                    LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints[i]);
+                    series.setColor(colors[i % colors.length]);
+                    graphView.addSeries(series);
                 }
-
-                try {
-
-                    graphView.getViewport().setXAxisBoundsManual(true);
-                    graphView.getViewport().setMinX(xIndex[0]);
-                    graphView.getViewport().setMaxX(xIndex[xIndex.length - 1]);
-
-                    for (int i = 0; i < numberOfValues; i++) {
-                        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints[i]);
-                        series.setColor(colors[i % colors.length]);
-                        graphView.addSeries(series);
-                    }
-                }catch (NullPointerException e){
-                    Log.e("UPDATEGRAPHVIEW", "NULL POINTEREXCEPTION");
-                }
-
+            }catch (NullPointerException e){
+                Log.e("UPDATEGRAPHVIEW", "NULL POINTEREXCEPTION");
             }
 
         }
+
     }
 
-    class DataUpdater extends AsyncTask<Long, Void, Void>{
-
-        long delay;
-        @Override
-        protected Void doInBackground(Long... longs) {
-            delay = longs[0];
-            Log.d("DATAUPDATE", "delay: " + delay);
-
-            while (true){
-                updateData();
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        private void updateData(){
-            double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
-            boolean b = graphContainer.addXValueSafe(time, numberOfValues);
-
-        }
+    private void updateData(){
+        double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
+        boolean b = graphContainer.addXValueSafe(time, numberOfValues);
 
     }
 
