@@ -126,6 +126,8 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        // TODO: check if the sensorEvent is the same as the sensor
+
         float[] values = sensorEvent.values;
 
         float[] realValues = new float[numberOfValues];
