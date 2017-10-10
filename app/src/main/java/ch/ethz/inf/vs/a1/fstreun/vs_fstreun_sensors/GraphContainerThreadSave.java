@@ -1,5 +1,7 @@
 package ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors;
 
+import android.util.Log;
+
 import java.io.Serializable;
 
 /**
