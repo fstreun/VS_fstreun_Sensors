@@ -1,7 +1,5 @@
 package ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors;
 
-import android.util.Log;
-
 import java.io.Serializable;
 
 /**
@@ -9,6 +7,8 @@ import java.io.Serializable;
  * Thread Safe version of the GraphContainerImpl
  */
 
+
+@SuppressWarnings("WeakerAccess")
 public class GraphContainerThreadSave implements GraphContainer, Serializable {
 
     private int maxLength = 100;
@@ -74,6 +74,7 @@ public class GraphContainerThreadSave implements GraphContainer, Serializable {
      * @param xValue .
      * @param numberOfValues .
      */
+    @SuppressWarnings("unused")
     synchronized public void addXValue(double xValue, int numberOfValues){
         if (currentLength > 0){
             addValues(xValue, dataSet[currentLength-1]);
@@ -86,9 +87,9 @@ public class GraphContainerThreadSave implements GraphContainer, Serializable {
      * Adds a new xValue and a copy of the latest yValue to the data,
      * if the xValue is strict bigger then the latest xValue added.
      * If no latest yValue exists an zero array of size numberOfValues is added.
-     * @param xValue
-     * @param numberOfValues
-     * @return
+     * @param xValue .
+     * @param numberOfValues .
+     * @return true if added, false if not
      */
     synchronized public boolean addXValueSafe(double xValue, int numberOfValues){
         if (currentLength > 0){

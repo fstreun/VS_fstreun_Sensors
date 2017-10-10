@@ -1,7 +1,5 @@
 package ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors;
 
-import android.os.Parcelable;
-
 import java.io.Serializable;
 
 /**
@@ -9,6 +7,7 @@ import java.io.Serializable;
  * stores all the data of the Graph
  */
 
+@SuppressWarnings("unused")
 public class GraphContainerImpl implements GraphContainer, Serializable {
 
 

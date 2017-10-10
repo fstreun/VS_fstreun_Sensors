@@ -3,7 +3,6 @@ package ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -34,8 +33,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getApplicationContext(), SensorActivity.class);
-                intent.putExtra(SensorActivity.EXTRA_SENSOR_TYP, adapter.getItem(i).getType());
-                startActivity(intent);
+                Sensor sensor = adapter.getItem(i);
+                if (sensor != null) {
+                    intent.putExtra(SensorActivity.EXTRA_SENSOR_TYP, sensor.getType());
+                    startActivity(intent);
+                }
             }
         });
 

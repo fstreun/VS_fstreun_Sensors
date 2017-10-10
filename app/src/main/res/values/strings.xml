@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">VS_fstreun_Sensors</string>
+    <string name="unknown_sensor_name">Unknown</string>
 </resources>
