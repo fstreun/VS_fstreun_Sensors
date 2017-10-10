@@ -141,7 +141,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         final float[] realValues = new float[numberOfValues];
         System.arraycopy(sensorEvent.values, 0, realValues, 0, numberOfValues);
         final double time = System.currentTimeMillis()/1000.0 - timeAtStart;
-        graphContainer.addValues(time, realValues);
+        graphContainer.addValuesSafe(time, realValues);
 
     }
 

@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         adapter = new SensorListAdapter(getApplicationContext(), sensors);
         listView.setAdapter(adapter);
+
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
