@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.LinearLayout;
@@ -34,11 +35,16 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     private List<TextView> textViews;
 
-    private GraphContainerImpl graphContainer = new GraphContainerImpl();
+    private GraphContainerThreadSave graphContainer = new GraphContainerThreadSave();
     private GraphView graphView;
     private int[] colors = {Color.BLUE, Color.GREEN, Color.RED, Color.YELLOW, Color.CYAN, Color.MAGENTA};
 
     double timeAtStart;
+
+    // delay for GraphViewUpdate
+    long delayGraphViewUpdate = 100;
+    // delay for automatic data update (not affected by sensor change updates)
+    long delayMaxDataUpdate = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +105,27 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     }
 
+
+    private Handler handlerDataUpdater = new Handler();
+    private Handler handlerGraphUpdater = new Handler();
+
+    private Runnable dataUpdater = new Runnable() {
+        @Override
+        public void run() {
+            updateData();
+            handlerDataUpdater.postDelayed(this, delayMaxDataUpdate);
+        }
+    };
+
+    private Runnable graphUpdater = new Runnable() {
+
+        @Override
+        public void run() {
+            updateViews();
+            handlerGraphUpdater.postDelayed(this, delayGraphViewUpdate);
+        }
+    };
+
     /**
      * Used by the android test
      * @return returns the current graphContainer.
@@ -107,52 +134,15 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         return graphContainer;
     }
 
-    private void updateGraphView(){
-
-        graphView.removeAllSeries();
-        float[][] values = graphContainer.getValues();
-        double [] xIndex = graphContainer.getxIndexs();
-
-
-        DataPoint[][] dataPoints = new DataPoint[numberOfValues][values.length];
-
-        for (int i = 0; i < values.length; i++){
-            // i is the xIndex
-            for (int j = 0; j < numberOfValues; j++){
-                // j goes over the different values at one xIndex
-                dataPoints[j][i] = new DataPoint(xIndex[i],values[i][j]);
-            }
-        }
-
-        for (int i = 0; i < numberOfValues; i++){
-            LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints[i]);
-            series.setColor(colors[i%colors.length]);
-            graphView.addSeries(series);
-        }
-        graphView.getViewport().setXAxisBoundsManual(true);
-        graphView.getViewport().setMinX(xIndex[0]);
-        graphView.getViewport().setMaxX(xIndex[xIndex.length-1]);
-
-    }
-
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 
-        float[] values = sensorEvent.values;
+        final float[] realValues = new float[numberOfValues];
+        System.arraycopy(sensorEvent.values, 0, realValues, 0, numberOfValues);
+        final double time = System.currentTimeMillis()/1000.0 - timeAtStart;
+        graphContainer.addValuesSafe(time, realValues);
 
-        float[] realValues = new float[numberOfValues];
-
-        for (int i = 0; i < numberOfValues; i++) {
-            textViews.get(i).setText(values[i] + " " + unit);
-
-            realValues[i] = values[i];
-        }
-
-        double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
-
-        graphContainer.addValues(time, realValues);
-        updateGraphView();
     }
 
 
@@ -161,26 +151,31 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
 
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
-
         // register SensorChangeListener on every start of the activity
         sensorMgr.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+        handlerDataUpdater.postDelayed(dataUpdater, 0);
+        handlerGraphUpdater.postDelayed(graphUpdater, 0);
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
+
+        handlerDataUpdater.removeCallbacks(dataUpdater);
+        handlerGraphUpdater.removeCallbacks(graphUpdater);
+
         sensorMgr.unregisterListener(this);
+        super.onPause();
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         timeAtStart = savedInstanceState.getDouble(SAVED_STATE_START_TIME);
-        graphContainer = (GraphContainerImpl) savedInstanceState.getSerializable(SAVED_STATE_GRAPH_CONTAINER);
+        graphContainer = (GraphContainerThreadSave) savedInstanceState.getSerializable(SAVED_STATE_GRAPH_CONTAINER);
     }
 
     @Override
@@ -189,4 +184,51 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
         outState.putSerializable(SAVED_STATE_GRAPH_CONTAINER, graphContainer);
         super.onSaveInstanceState(outState);
     }
+
+
+    private void updateViews(){
+
+
+        graphView.removeAllSeries();
+        GraphContainerThreadSave.ValueContainer container = graphContainer.getAllValues();
+        float[][] values = container.yValues;
+        double [] xIndex = container.xValues;
+
+        if (xIndex.length > 0) {
+
+            for (int i = 0; i < numberOfValues; i++) {
+                textViews.get(i).setText(values[values.length-1][i] + " " + unit);
+            }
+
+            DataPoint[][] dataPoints = new DataPoint[numberOfValues][values.length];
+
+            for (int i = 0; i < values.length; i++) {
+                // i is the xIndex
+                for (int j = 0; j < numberOfValues; j++) {
+                    // j goes over the different values at one xIndex
+                    dataPoints[j][i] = new DataPoint(xIndex[i], values[i][j]);
+                }
+            }
+
+                graphView.getViewport().setXAxisBoundsManual(true);
+                graphView.getViewport().setMinX(xIndex[0]);
+                graphView.getViewport().setMaxX(xIndex[xIndex.length - 1]);
+
+                for (int i = 0; i < numberOfValues; i++) {
+                    LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints[i]);
+                    series.setColor(colors[i % colors.length]);
+                    graphView.addSeries(series);
+                }
+
+
+        }
+    }
+
+
+    private void updateData(){
+        double time = (System.currentTimeMillis()/1000.0) - timeAtStart;
+        graphContainer.addXValueSafe(time, numberOfValues);
+
+    }
+
 }

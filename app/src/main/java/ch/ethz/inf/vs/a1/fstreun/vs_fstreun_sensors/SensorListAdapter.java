@@ -17,6 +17,7 @@ import java.util.List;
  * Adapter which defines the layout of one item in the sensor list
  */
 
+@SuppressWarnings("WeakerAccess")
 public class SensorListAdapter extends ArrayAdapter<Sensor>{
 
     private static class ViewHolder{
@@ -47,7 +48,11 @@ public class SensorListAdapter extends ArrayAdapter<Sensor>{
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.SensorName.setText(sensor.getName());
+        if (sensor != null) {
+            viewHolder.SensorName.setText(sensor.getName());
+        }else{
+            viewHolder.SensorName.setText(R.string.unknown_sensor_name);
+        }
         return convertView;
     }
 

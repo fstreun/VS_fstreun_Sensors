@@ -1,7 +1,5 @@
 package ch.ethz.inf.vs.a1.fstreun.vs_fstreun_sensors;
 
-import android.os.Parcelable;
-
 import java.io.Serializable;
 
 /**
@@ -9,6 +7,7 @@ import java.io.Serializable;
  * stores all the data of the Graph
  */
 
+@SuppressWarnings("unused")
 public class GraphContainerImpl implements GraphContainer, Serializable {
 
 
@@ -24,7 +23,7 @@ public class GraphContainerImpl implements GraphContainer, Serializable {
     /**
      *
      * @param xIndex The x index.
-     * @param values The values. If there is more than one value there should be several series.
+     * @param values The values.
      * @throws IllegalArgumentException when values is null or not the same length as the first value added
      */
     @Override
@@ -63,9 +62,11 @@ public class GraphContainerImpl implements GraphContainer, Serializable {
         return res;
     }
 
+
     public double[] getxIndexs(){
         double[] res = new double[currentLength];
         System.arraycopy(xDataSet, 0, res,0,currentLength);
         return res;
     }
+
 }

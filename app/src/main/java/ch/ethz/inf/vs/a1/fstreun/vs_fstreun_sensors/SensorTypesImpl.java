@@ -4,8 +4,10 @@ import android.hardware.Sensor;
 
 /**
  * Created by fabio on 10/3/17.
+ *
  */
 
+@SuppressWarnings("deprecation")
 class SensorTypesImpl implements SensorTypes {
 
     @Override
@@ -64,7 +66,7 @@ class SensorTypesImpl implements SensorTypes {
             case Sensor.TYPE_ORIENTATION:
                 return "degree";
             case Sensor.TYPE_PRESSURE:
-                return "hPa"; // mbar is the same
+                return "hPa"; // mBar is the same
             case Sensor.TYPE_PROXIMITY:
                 return "cm";
             case Sensor.TYPE_RELATIVE_HUMIDITY:
