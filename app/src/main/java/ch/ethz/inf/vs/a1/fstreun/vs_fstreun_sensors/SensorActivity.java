@@ -44,7 +44,7 @@ public class SensorActivity extends AppCompatActivity implements SensorEventList
     // delay for GraphViewUpdate
     long delayGraphViewUpdate = 100;
     // delay for automatic data update (not affected by sensor change updates)
-    long delayMaxDataUpdate = 200;
+    long delayMaxDataUpdate = 500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
